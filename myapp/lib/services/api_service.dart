@@ -4,9 +4,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class ApiService {
   const ApiService();
 
-  // Emulator এ localhost = 10.0.2.2
   static final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://10.0.2.2:3000/api',
+    baseUrl: 'http://localhost:3000/api',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
   ));
 
   static const _storage = FlutterSecureStorage();
