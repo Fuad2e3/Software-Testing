@@ -16,6 +16,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final api = const ApiService();
   bool isLoading = false;
 
+  // start handleRegister function
+  // Validates the registration form, calls the API service to register a new user, and redirects to the login screen upon success.
   void handleRegister() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -50,7 +52,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     }
   }
+  // end handleRegister function
 
+  // start build function
+  // Renders the registration UI, including fields for full name, email, password, and the register button.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,4 +189,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+  // end build function
 }

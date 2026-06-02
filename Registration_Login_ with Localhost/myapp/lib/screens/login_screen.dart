@@ -15,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final api = const ApiService();
   bool isLoading = false;
 
+  // start handleLogin function
+  // Validates the login form, calls the API service to perform login, and navigates to the home screen on success or shows an error message on failure.
   void handleLogin() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -39,7 +41,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+  // end handleLogin function
 
+  // start build function
+  // Renders the login UI, including the email and password text fields, login button, and navigation to the registration screen.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,4 +161,5 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  // end build function
 }

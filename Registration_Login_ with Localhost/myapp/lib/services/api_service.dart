@@ -7,12 +7,15 @@ class ApiService {
 
   static final String _baseUrl = _getBaseUrl();
 
+  // start _getBaseUrl function
+  // Returns the appropriate base URL based on whether the app is running on web or mobile (Android emulator).
   static String _getBaseUrl() {
     if (kIsWeb) {
       return 'http://localhost:3000/api';
     }
     return 'http://10.0.2.2:3000/api';
   }
+  // end _getBaseUrl function
 
   static final Dio _dio = Dio(BaseOptions(
     baseUrl: _baseUrl,
@@ -26,7 +29,8 @@ class ApiService {
 
   static const _storage = FlutterSecureStorage();
 
-  // ── REGISTER ──
+  // start register function
+  // Sends a POST request to the register endpoint with user details. Handles potential Dio errors and returns a response map.
   Future<Map<String, dynamic>> register(
     String name, String email, String password
   ) async {
@@ -51,8 +55,10 @@ class ApiService {
       return {'success': false, 'message': message};
     }
   }
+  // end register function
 
-  // ── LOGIN ──
+  // start login function
+  // Sends a POST request to the login endpoint. On success, it saves the received JWT token to secure storage.
   Future<Map<String, dynamic>> login(
     String email, String password
   ) async {
@@ -84,14 +90,19 @@ class ApiService {
       return {'success': false, 'message': message};
     }
   }
+  // end login function
 
-  // ── LOGOUT ──
+  // start logout function
+  // Deletes the JWT token from secure storage.
   Future<void> logout() async {
     await _storage.delete(key: 'token');
   }
+  // end logout function
 
-  // ── Token পড়ো ──
+  // start getToken function
+  // Retrieves the stored JWT token from secure storage.
   Future<String?> getToken() async {
     return await _storage.read(key: 'token');
   }
+  // end getToken function
 }

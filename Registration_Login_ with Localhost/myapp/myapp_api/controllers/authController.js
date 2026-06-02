@@ -2,7 +2,8 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// REGISTER
+// start register function
+// Controller for user registration. Validates input, hashes the password using bcrypt, and inserts the new user into the database.
 exports.register = (req, res) => {
   const { name, email, password } = req.body;
   console.log('Register attempt:', email);
@@ -36,8 +37,10 @@ exports.register = (req, res) => {
     );
   });
 };
+// end register function
 
-// LOGIN
+// start login function
+// Controller for user login. Validates credentials, checks account status (active, inactive, or banned), handles 30-day inactivity, compares password hashes, and generates a JWT token on success.
 exports.login = (req, res) => {
   const { email, password } = req.body;
   console.log('Login attempt:', email);
@@ -109,3 +112,4 @@ exports.login = (req, res) => {
     });
   });
 };
+// end login function

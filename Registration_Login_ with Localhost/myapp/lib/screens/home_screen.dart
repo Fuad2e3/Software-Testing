@@ -6,6 +6,8 @@ class HomeScreen extends StatelessWidget {
 
   final api = const ApiService();
 
+  // start build function
+  // Renders the home dashboard UI, providing a logout button and a welcome message.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,4 +111,5 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+  // end build function
 }

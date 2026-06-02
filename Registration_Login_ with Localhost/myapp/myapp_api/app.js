@@ -13,6 +13,8 @@ app.use(express.json({ limit: '1mb' }));
 // 🛡️ Enhanced Brute Force Protection
 const db = require('./config/db'); // Database required for auto-ban
 const loginAttempts = new Map();
+// start loginLimiter function
+// Middleware to prevent brute force attacks by limiting login attempts per IP. If limits are exceeded, it updates the user's violation count and may ban the account.
 const loginLimiter = (req, res, next) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
   const email = req.body.email;
@@ -72,6 +74,7 @@ const loginLimiter = (req, res, next) => {
 
   next();
 };
+// end loginLimiter function
 
 
 // Routes

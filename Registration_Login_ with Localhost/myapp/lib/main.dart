@@ -4,17 +4,22 @@ import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/api_service.dart';
 
+// start main function
+// Entry point of the app. Initializes Flutter, checks for an existing authentication token, and determines the initial route.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   const api = ApiService();
   final token = await api.getToken();
   runApp(MyApp(initialRoute: token != null ? '/home' : '/login'));
 }
+// end main function
 
 class MyApp extends StatelessWidget {
   final String initialRoute;
   const MyApp({super.key, required this.initialRoute});
 
+  // start build function
+  // Builds the root widget of the application, defining themes and application-level routes.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -70,4 +75,5 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+  // end build function
 }
