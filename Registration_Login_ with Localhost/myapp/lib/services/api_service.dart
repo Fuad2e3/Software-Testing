@@ -1,11 +1,23 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   const ApiService();
 
+  static final String _baseUrl = _getBaseUrl();
+
+  static String _getBaseUrl() {
+    if (kIsWeb) {
+      return 'http://localhost:3000/api';
+    }
+    return 'http://10.0.2.2:3000/api';
+  }
+
   static final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://localhost:3000/api',
+    baseUrl: _baseUrl,
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 10),
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -26,7 +38,17 @@ class ApiService {
       });
       return res.data;
     } catch (e) {
-      return {'success': false, 'message': 'Something went wrong!'};
+      String message = 'Something went wrong!';
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout) {
+          message = 'Connection timeout. Is the server running?';
+        } else if (e.type == DioExceptionType.connectionError) {
+          message = 'Connection error. Check your network or server.';
+        } else if (e.response != null && e.response!.data is Map) {
+          message = e.response!.data['message'] ?? message;
+        }
+      }
+      return {'success': false, 'message': message};
     }
   }
 
@@ -47,7 +69,19 @@ class ApiService {
 
       return res.data;
     } catch (e) {
-      return {'success': false, 'message': 'Login failed!'};
+      String message = 'Login failed!';
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout) {
+          message = 'Connection timeout. Is the server running?';
+        } else if (e.type == DioExceptionType.connectionError) {
+          message = 'Connection error. Check your network or server.';
+        } else if (e.response != null && e.response!.data is Map) {
+          message = e.response!.data['message'] ?? message;
+        } else if (e.response?.statusCode == 429) {
+          message = 'Too many attempts! Try again later.';
+        }
+      }
+      return {'success': false, 'message': message};
     }
   }
 
