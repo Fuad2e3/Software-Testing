@@ -80,10 +80,12 @@ const loginLimiter = (req, res, next) => {
 // Routes
 app.use('/api/auth', loginLimiter, require('./routes/auth'));
 
-// Test
+// start get function
+// Root route handler to verify that the API is running correctly.
 app.get('/', (req, res) => {
   res.json({ message: 'API is running!' });
 });
+// end get function
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {

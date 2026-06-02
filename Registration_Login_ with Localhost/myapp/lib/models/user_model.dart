@@ -9,6 +9,8 @@ class UserModel {
     required this.email,
   });
 
+  // start fromJson function
+  // Factory constructor that creates a UserModel instance from a JSON map.
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'],
@@ -16,4 +18,5 @@ class UserModel {
       email: json['email'],
     );
   }
+  // end fromJson function
 }
