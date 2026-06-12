@@ -1,4 +1,4 @@
-# 🌱 AI-Powered Smart Gardening Ecosystem
+# Software Testing 
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Android-brightgreen?style=for-the-badge&logo=android" alt="Platform">
@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
 </p>
 
-Empowering gardeners with cutting-edge AI, a thriving marketplace, and a global community. This project provides a comprehensive solution for smart garden management, featuring secure authentication and AI-driven insights.
+just for text Software Testing.
 
 ---
 
@@ -98,5 +98,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 <p align="center">
   Developed with ❤️ by <b>Team Softece</b><br>
-  <i>Software Testing Project | Green University of Bangladesh</i>
+  <i>Software Testing</i>
 </p>
