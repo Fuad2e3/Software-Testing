@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                 }
               },
             ),
-          )
+          ),
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -42,7 +42,9 @@ class HomeScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+              Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.5),
               Theme.of(context).colorScheme.surface,
             ],
           ),
@@ -57,10 +59,10 @@ class HomeScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.indigo.withOpacity(0.2),
+                    color: Colors.indigo.withValues(alpha: 0.2),
                     blurRadius: 20,
                     spreadRadius: 5,
-                  )
+                  ),
                 ],
               ),
               child: const Icon(
@@ -73,9 +75,9 @@ class HomeScreen extends StatelessWidget {
             Text(
               'Welcome Back!',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: Colors.indigo[900],
-                    letterSpacing: 1.2,
-                  ),
+                color: Colors.indigo[900],
+                letterSpacing: 1.2,
+              ),
             ),
             const SizedBox(height: 12),
             const Text(
@@ -102,7 +104,10 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: const Text(
                   'View Profile',
-                  style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.indigo,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -111,5 +116,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
   // end build function
 }

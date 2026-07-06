@@ -17,29 +17,32 @@ class ApiService {
   }
   // end _getBaseUrl function
 
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl: _baseUrl,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-  ));
+  static final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: _baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    ),
+  );
 
   static const _storage = FlutterSecureStorage();
 
   // start register function
   // Sends a POST request to the register endpoint with user details. Handles potential Dio errors and returns a response map.
   Future<Map<String, dynamic>> register(
-    String name, String email, String password
+    String name,
+    String email,
+    String password,
   ) async {
     try {
-      final res = await _dio.post('/auth/register', data: {
-        'name': name,
-        'email': email,
-        'password': password,
-      });
+      final res = await _dio.post(
+        '/auth/register',
+        data: {'name': name, 'email': email, 'password': password},
+      );
       return res.data;
     } catch (e) {
       String message = 'Something went wrong!';
@@ -59,14 +62,12 @@ class ApiService {
 
   // start login function
   // Sends a POST request to the login endpoint. On success, it saves the received JWT token to secure storage.
-  Future<Map<String, dynamic>> login(
-    String email, String password
-  ) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final res = await _dio.post('/auth/login', data: {
-        'email': email,
-        'password': password,
-      });
+      final res = await _dio.post(
+        '/auth/login',
+        data: {'email': email, 'password': password},
+      );
 
       // Token save করো
       if (res.data['token'] != null) {
@@ -104,5 +105,6 @@ class ApiService {
   Future<String?> getToken() async {
     return await _storage.read(key: 'token');
   }
+
   // end getToken function
 }

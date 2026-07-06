@@ -12,7 +12,11 @@ void main() {
 
     // Verify that the login screen is shown.
     expect(find.text('Login'), findsWidgets); // App bar and button text
-    expect(find.byType(TextField), findsNWidgets(2)); // Email and Password fields
+    expect(
+      find.byType(TextField),
+      findsNWidgets(2),
+    ); // Email and Password fields
   });
 }
+
 // end main function
