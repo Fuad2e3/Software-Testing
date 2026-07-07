@@ -2,8 +2,9 @@ name: Daily Auto Commit
 
 on:
   schedule:
-    # প্রতিদিন সকাল 9:00 (বাংলাদেশ সময়)
-    - cron: '0 3 * * *'
+    # প্রতিদিন সকাল 8:30 (বাংলাদেশ সময়)
+    # 8:30 AM BST is 2:30 AM UTC (UTC+6)
+    - cron: '30 2 * * *'
   workflow_dispatch:
 
 permissions:
@@ -26,8 +27,8 @@ jobs:
           git config user.name "MD. ABDULLAH AL FUAD"
           git config user.email "fuadkalaroa2002@gmail.com"
 
-          git add .
-          git diff --cached --quiet || git commit -m "Update daily log"
+          git add -A
+          git diff --cached --quiet || git commit -m "Update daily log and sync project changes"
 
       - name: Push Changes
         uses: ad-m/github-push-action@master
