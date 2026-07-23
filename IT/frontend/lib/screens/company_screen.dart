@@ -121,29 +121,28 @@ class _CompanyScreenState extends State<CompanyScreen> {
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Center(child: Text('Searching & Verifying...', style: TextStyle(fontSize: 12, color: Colors.indigo))),
                   ),
-                const SizedBox(height: 8),
                 // Website Field (Visible and Editable)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: TextField(
-                    controller: websiteCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Company Website',
-                      hintText: 'e.g. facebook.com',
-                      prefixIcon: const Icon(Icons.language_rounded, size: 20, color: Colors.indigo),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      filled: true,
-                      fillColor: Colors.indigo.withOpacity(0.05),
-                    ),
+                const SizedBox(height: 8),
+                const Text('Company Website', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: websiteCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. facebook.com',
+                    prefixIcon: const Icon(Icons.language_rounded, size: 20, color: Colors.indigo),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 16),
                 // Email Field (Editable)
+                const Text('Email Address', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                const SizedBox(height: 4),
                 TextField(
                   controller: emailCtrl,
                   decoration: InputDecoration(
-                    labelText: 'Email Address',
                     prefixIcon: const Icon(Icons.email_outlined, size: 20),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     enabledBorder: OutlineInputBorder(
@@ -156,25 +155,35 @@ class _CompanyScreenState extends State<CompanyScreen> {
                       ),
                     ),
                     suffixIcon: verificationStatus != null
-                      ? Icon(
-                          verificationStatus == 'deliverable' ? Icons.check_circle : Icons.warning_amber_rounded,
-                          color: verificationStatus == 'deliverable' ? Colors.green : Colors.orange,
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              verificationStatus == 'deliverable' ? 'VERIFIED ' : 'RISKY ',
+                              style: TextStyle(color: verificationStatus == 'deliverable' ? Colors.green : Colors.orange, fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            Icon(
+                              verificationStatus == 'deliverable' ? Icons.check_circle : Icons.warning_amber_rounded,
+                              color: verificationStatus == 'deliverable' ? Colors.green : Colors.orange,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                         )
                       : null,
                   ),
                 ),
                 const SizedBox(height: 16),
                 // Contact Number Field (Editable)
+                const Text('Contact Number', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                const SizedBox(height: 4),
                 TextField(
                   controller: contactCtrl,
                   onChanged: (val) {
-                    // Simple local validation for the tick mark
                     setDialogState(() {
                       isPhoneValid = val.length >= 7 && RegExp(r'^[0-9\-+ \s()]+$').hasMatch(val);
                     });
                   },
                   decoration: InputDecoration(
-                    labelText: 'Contact Number',
                     prefixIcon: const Icon(Icons.phone_android_outlined, size: 20),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     enabledBorder: OutlineInputBorder(
@@ -184,7 +193,16 @@ class _CompanyScreenState extends State<CompanyScreen> {
                         width: 2,
                       ),
                     ),
-                    suffixIcon: isPhoneValid ? const Icon(Icons.check_circle, color: Colors.green) : null,
+                    suffixIcon: isPhoneValid 
+                      ? const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('VALID ', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                            Icon(Icons.check_circle, color: Colors.green),
+                            const SizedBox(width: 8),
+                          ],
+                        )
+                      : null,
                   ),
                 ),
               ],
