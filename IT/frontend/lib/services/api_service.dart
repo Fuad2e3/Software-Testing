@@ -181,29 +181,32 @@ class ApiService {
     print('--- Starting Smart Search for: $input ---');
 
     try {
-      // Step 1: Guess Domain
-      String domain = input.trim().replaceAll(' ', '').toLowerCase();
+      // Step 1: Clean Name and Guess Domain
+      String cleanName = input
+          .replaceAll(RegExp(r'\s+(Limited|Ltd|Inc|LLC|Corp|PLC)\.?$', caseSensitive: false), '')
+          .replaceAll('.', '')
+          .trim();
+      
+      String domain = cleanName.replaceAll(' ', '').toLowerCase();
       if (!domain.contains('.')) domain = '$domain.com';
 
-      // Step 2: Try to get data from Abstract Enrichment (Might fail if key is for Email only)
+      print('Cleaned Name: $cleanName | Guessed Domain: $domain');
+
+      // Step 2: Try to get data from Abstract Enrichment
       String email = 'info@$domain';
       String contact = 'N/A';
       String name = input;
 
-      // Sample Data for Testing
+      // Mock data for specific large companies
       if (input.toLowerCase().contains('google')) {
         email = 'contact@google.com';
         contact = '+1-650-253-0000';
       } else if (input.toLowerCase().contains('facebook') || input.toLowerCase().contains('meta')) {
         email = 'support@meta.com';
         contact = '+1-650-543-4800';
-      } else if (input.toLowerCase().contains('microsoft')) {
-        email = 'info@microsoft.com';
-        contact = '+1-425-882-8080';
       }
 
-      // Step 3: Verify the email using your specific Key
-      print('Verifying email deliverability...');
+      // Step 3: Verify the email
       final verifyRes = await _dio.get(
         'https://emailreputation.abstractapi.com/v1/',
         queryParameters: {'api_key': apiKey, 'email': email},
@@ -216,7 +219,6 @@ class ApiService {
           'status': detail['status'] ?? 'unknown',
           'score': verifyRes.data['email_quality']?['score'] ?? 0.0,
         };
-        print('Verification Result: ${verification['status']}');
       }
 
       return {
@@ -232,7 +234,7 @@ class ApiService {
       return {
         'success': true, 
         'email': 'info@${input.replaceAll(' ', '').toLowerCase()}.com', 
-        'contact': 'Not found in public records',
+        'contact': 'N/A',
         'verification': {'status': 'unknown', 'score': 0.0}
       };
     }

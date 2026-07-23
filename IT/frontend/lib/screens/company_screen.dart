@@ -35,8 +35,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
 
   void _showAddDialog() {
     final nameCtrl = TextEditingController();
-    String? searchedEmail;
-    String? searchedContact;
+    final emailCtrl = TextEditingController();
+    final contactCtrl = TextEditingController();
     String? verificationStatus;
     bool isSearching = false;
     Timer? debounce;
@@ -47,63 +47,81 @@ class _CompanyScreenState extends State<CompanyScreen> {
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text('Add Company', style: TextStyle(fontWeight: FontWeight.bold)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                decoration: InputDecoration(
-                  labelText: 'Company Name',
-                  hintText: 'e.g. Facebook',
-                  suffixIcon: isSearching
-                      ? const Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: CircularProgressIndicator(strokeWidth: 2),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Company Name',
+                    hintText: 'e.g. Facebook',
+                    suffixIcon: isSearching
+                        ? const Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : null,
+                  ),
+                  onChanged: (value) {
+                    if (debounce?.isActive ?? false) debounce?.cancel();
+                    debounce = Timer(const Duration(milliseconds: 1000), () async {
+                      if (value.isNotEmpty) {
+                        setDialogState(() => isSearching = true);
+                        final result = await api.searchCompanyDetails(value);
+                        setDialogState(() {
+                          isSearching = false;
+                          if (result['success']) {
+                            emailCtrl.text = result['email'] ?? "";
+                            contactCtrl.text = result['contact'] ?? "";
+                            verificationStatus = result['verification']?['status'];
+                          }
+                        });
+                      }
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                if (isSearching)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Center(child: Text('Searching & Verifying...', style: TextStyle(fontSize: 12, color: Colors.indigo))),
+                  ),
+                // Email Field (Editable)
+                TextField(
+                  controller: emailCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Email Address',
+                    prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: verificationStatus == 'deliverable' 
+                          ? Colors.green 
+                          : (verificationStatus == null ? Colors.transparent : Colors.orange),
+                        width: 2,
+                      ),
+                    ),
+                    suffixIcon: verificationStatus != null
+                      ? Icon(
+                          verificationStatus == 'deliverable' ? Icons.check_circle : Icons.warning_amber_rounded,
+                          color: verificationStatus == 'deliverable' ? Colors.green : Colors.orange,
                         )
                       : null,
-                ),
-                onChanged: (value) {
-                  if (debounce?.isActive ?? false) debounce?.cancel();
-                  debounce = Timer(const Duration(milliseconds: 1000), () async {
-                    if (value.isNotEmpty) {
-                      setDialogState(() => isSearching = true);
-                      final result = await api.searchCompanyDetails(value);
-                      setDialogState(() {
-                        isSearching = false;
-                        if (result['success']) {
-                          searchedEmail = result['email'];
-                          searchedContact = result['contact'];
-                          verificationStatus = result['verification']?['status'];
-                        }
-                      });
-                    }
-                  });
-                },
-              ),
-              if (isSearching)
-                const Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Center(child: Text('Searching & Verifying...', style: TextStyle(fontSize: 12, color: Colors.indigo))),
-                ),
-              if (!isSearching && (searchedEmail != null || searchedContact != null)) ...[
-                const SizedBox(height: 20),
-                if (searchedEmail != null)
-                  _buildInfoRow(
-                    Icons.mark_email_read_outlined, 
-                    'Verified Email', 
-                    searchedEmail!,
-                    tag: verificationStatus == 'deliverable' ? 'VALID' : verificationStatus?.toUpperCase(),
-                    tagColor: verificationStatus == 'deliverable' ? Colors.green : Colors.orange,
                   ),
-                const SizedBox(height: 12),
-                _buildInfoRow(
-                  Icons.phone_android_outlined, 
-                  'Contact Number', 
-                  searchedContact ?? 'Not found',
+                ),
+                const SizedBox(height: 16),
+                // Contact Field (Editable)
+                TextField(
+                  controller: contactCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Contact Number',
+                    prefixIcon: const Icon(Icons.phone_android_outlined, size: 20),
+                  ),
                 ),
               ],
-            ],
+            ),
           ),
           actions: [
             TextButton(
@@ -119,30 +137,17 @@ class _CompanyScreenState extends State<CompanyScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () async {
-                print('--- Attempting to Add Company ---');
                 if (nameCtrl.text.isEmpty) {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a company name')),
-                  );
+                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a company name')));
                   return;
                 }
                 
-                if (userId == null) {
-                  print('Error: userId is null');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('User session error. Please log in again.')),
-                  );
-                  return;
-                }
-
                 final res = await api.addCompany({
                   'user_id': userId,
                   'company_name': nameCtrl.text,
-                  'email': searchedEmail ?? "",
-                  'contact': searchedContact ?? "",
+                  'email': emailCtrl.text,
+                  'contact': contactCtrl.text,
                 });
-
-                print('Add Company Response: $res');
 
                 if (res['success']) {
                   if (mounted) {
