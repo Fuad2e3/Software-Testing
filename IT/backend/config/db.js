@@ -22,6 +22,7 @@ db.connect((err) => {
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
         company_name VARCHAR(255) NOT NULL,
+        website VARCHAR(255),
         email VARCHAR(255),
         contact VARCHAR(20),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -30,7 +31,19 @@ db.connect((err) => {
     `;
     db.query(createCompaniesTable, (err) => {
       if (err) console.error('Error creating companies table:', err.message);
-      else console.log('Companies table ready.');
+      else {
+        console.log('Companies table ready.');
+        // Robust way to ensure website column exists
+        db.query("SHOW COLUMNS FROM companies LIKE 'website'", (err, rows) => {
+          if (err) console.error('Error checking for website column:', err.message);
+          else if (rows.length === 0) {
+            db.query("ALTER TABLE companies ADD COLUMN website VARCHAR(255) AFTER company_name", (err) => {
+              if (err) console.error('Error adding website column:', err.message);
+              else console.log('Website column added successfully.');
+            });
+          }
+        });
+      }
     });
   }
 });

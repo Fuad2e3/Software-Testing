@@ -2,6 +2,7 @@ class Company {
   final int? id;
   final int userId;
   final String companyName;
+  final String? website;
   final String? email;
   final String? contact;
   final String? createdAt;
@@ -10,6 +11,7 @@ class Company {
     this.id,
     required this.userId,
     required this.companyName,
+    this.website,
     this.email,
     this.contact,
     this.createdAt,
@@ -20,6 +22,7 @@ class Company {
       id: json['id'],
       userId: json['user_id'],
       companyName: json['company_name'],
+      website: json['website'],
       email: json['email'],
       contact: json['contact'],
       createdAt: json['created_at'],
@@ -31,6 +34,7 @@ class Company {
       'id': id,
       'user_id': userId,
       'company_name': companyName,
+      'website': website,
       'email': email,
       'contact': contact,
     };
