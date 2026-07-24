@@ -2,14 +2,14 @@ const db = require('../config/db');
 
 // Add a new company
 exports.addCompany = (req, res) => {
-  const { user_id, company_name, website, email, contact } = req.body;
+  const { user_id, company_name, website, email, email_source, contact, contact_source } = req.body;
 
   if (!user_id || !company_name) {
     return res.status(400).json({ success: false, message: 'User ID and Company Name are required!' });
   }
 
-  const query = 'INSERT INTO companies (user_id, company_name, website, email, contact) VALUES (?, ?, ?, ?, ?)';
-  db.query(query, [user_id, company_name, website, email, contact], (err, result) => {
+  const query = 'INSERT INTO companies (user_id, company_name, website, email, email_source, contact, contact_source) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  db.query(query, [user_id, company_name, website, email, email_source, contact, contact_source], (err, result) => {
     if (err) {
       console.error('Insert Company Error:', err.message);
       return res.status(500).json({ success: false, message: 'Failed to add company.' });

@@ -263,6 +263,8 @@ class ApiService {
         'contact': contact,
         'name': name,
         'website': domain,
+        'email_source': domain,
+        'contact_source': domain,
         'verification': emailVerification,
         'isPhoneValid': isPhoneValid,
       };
@@ -274,6 +276,8 @@ class ApiService {
         'email': 'info@unknown.com', 
         'contact': 'N/A',
         'website': 'unknown.com',
+        'email_source': 'unknown.com',
+        'contact_source': 'unknown.com',
         'verification': {'status': 'unknown', 'score': 0.0},
         'isPhoneValid': false,
       };

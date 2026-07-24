@@ -1,0 +1,554 @@
+{
+  "name": "Spreadsheet Upload → Combined Email",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Send Emails From Google Sheet",
+        "formDescription": "Paste a Google Sheet URL. The first tab must have \"Email\" and \"Status\" columns. Valid emails are sent (Status = Sent). Invalid-format or bounced addresses are marked Failed after a short wait.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Google Sheet URL (first tab must contain \"Email\" and \"Status\" columns)",
+              "fieldName": "sheetUrl",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Subject",
+              "fieldName": "subject",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Message",
+              "fieldType": "textarea",
+              "fieldName": "message",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7705d671-fbb1-4133-ab55-2f67d1959d6d",
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        192
+      ],
+      "webhookId": "69d9dff1-4f43-4a2c-a14c-0199b8be9e27"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $json.sheetUrl }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0",
+          "cachedResultName": "First sheet"
+        },
+        "options": {}
+      },
+      "id": "87193b45-7b4c-4226-938d-ec762fd82266",
+      "name": "Read Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CDqf1nif8VRXXSTr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "email-format",
+              "leftValue": "={{ $json.Email }}",
+              "rightValue": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "81d8c216-3bf5-4363-9c7d-ff1b4d5da222",
+      "name": "Is Valid Email",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "={{ $('Form Trigger').item.json.subject }}",
+        "emailType": "text",
+        "message": "={{ $('Form Trigger').item.json.message }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "ecc68c5e-2aba-4da3-a997-47188bdf1430",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        96
+      ],
+      "webhookId": "cacb41c1-6564-4a22-9b41-9071b729a1d3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "N52D65m4U9HrMdt3",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Form Trigger').item.json.sheetUrl }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0",
+          "cachedResultName": "First sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Read Sheet').item.json.row_number }}",
+            "Status": "Valid"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ea4bcd8a-ea68-4817-a46c-e1dc57156408",
+      "name": "Mark Sent In Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CDqf1nif8VRXXSTr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "id": "d44bfdb6-9a83-4f15-b3d9-f8f815b571a1",
+      "name": "Wait For Bounces",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        0
+      ],
+      "executeOnce": true,
+      "webhookId": "1d5e20e4-f0d1-4b56-a088-6888681eb75e"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "includeSpamTrash": true,
+          "q": "from:mailer-daemon",
+          "readStatus": "both",
+          "receivedAfter": "={{ $('Form Trigger').item.json.submittedAt }}"
+        }
+      },
+      "id": "88c04c86-20b6-4c92-8cb6-a1ea43d61739",
+      "name": "Get Bounce Emails",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "webhookId": "25d65ed0-1225-4072-a690-f8a9a2de2ea4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "N52D65m4U9HrMdt3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect all bounce-notification text (search every string field of each message)\nconst bounceItems = $input.all().filter(i => i.json && Object.keys(i.json).length > 0);\nconst haystacks = bounceItems.map(i => JSON.stringify(i.json).toLowerCase());\n\n// Valid rows that we attempted to send to\nconst validRows = $('Is Valid Email').all();\n\nconst results = [];\nfor (const it of validRows) {\n  const row = it.json;\n  const email = String(row.Email || '').trim().toLowerCase();\n  if (!email) continue;\n  const bounced = haystacks.some(h => h.includes(email));\n  if (bounced) {\n    results.push({ json: { row_number: row.row_number, Status: 'Failed' } });\n  }\n}\nreturn results;"
+      },
+      "id": "c4c9afe6-41c8-4768-a5bd-581c3aeaa4a7",
+      "name": "Find Bounced Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Form Trigger').item.json.sheetUrl }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0",
+          "cachedResultName": "First sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Status": "Bounce Back"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b06bdf13-7831-461a-9329-a806b1f490a1",
+      "name": "Mark Failed (Bounced)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1776,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CDqf1nif8VRXXSTr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Form Trigger').item.json.sheetUrl }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0",
+          "cachedResultName": "First sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "value": {
+            "row_number": "={{ $('Read Sheet').item.json.row_number }}",
+            "Status": "Failed"
+          },
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "db532ed9-ab03-459c-8bb3-81aa489ee581",
+      "name": "Mark Failed (Send Error)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CDqf1nif8VRXXSTr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Form Trigger').item.json.sheetUrl }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0",
+          "cachedResultName": "First sheet"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Status": "Failed"
+          },
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6a922797-98ed-4a3c-aa4a-a7fc7efdd345",
+      "name": "Mark Failed (Invalid Email)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        288
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CDqf1nif8VRXXSTr",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Sheet": {
+      "main": [
+        [
+          {
+            "node": "Is Valid Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Failed (Invalid Email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Mark Sent In Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Failed (Send Error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Sent In Sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait For Bounces",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Bounces": {
+      "main": [
+        [
+          {
+            "node": "Get Bounce Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bounce Emails": {
+      "main": [
+        [
+          {
+            "node": "Find Bounced Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Bounced Rows": {
+      "main": [
+        [
+          {
+            "node": "Mark Failed (Bounced)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "07da342e-da35-41cc-b5a6-00c07743525b",
+  "meta": {
+    "instanceId": "de0efd0485270fa215a717ba9f850375d39e0ae7d42d552b821fbe79a977f733"
+  },
+  "nodeGroups": [],
+  "id": "oyXzmr0zoiY8fym7",
+  "tags": []
+}

@@ -56,7 +56,9 @@ class _CompanyScreenState extends State<CompanyScreen> {
     final nameCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
     final contactCtrl = TextEditingController();
-    final websiteCtrl = TextEditingController(); // Added controller for Website
+    final websiteCtrl = TextEditingController();
+    final emailSourceCtrl = TextEditingController();
+    final contactSourceCtrl = TextEditingController();
     String? verificationStatus;
     bool isPhoneValid = false;
     bool isSearching = false;
@@ -96,17 +98,20 @@ class _CompanyScreenState extends State<CompanyScreen> {
                           if (result['success']) {
                             emailCtrl.text = result['email'] ?? "";
                             contactCtrl.text = result['contact'] ?? "";
-                            websiteCtrl.text = result['website'] ?? ""; // Auto-fill website box
+                            websiteCtrl.text = result['website'] ?? "";
+                            emailSourceCtrl.text = result['email_source'] ?? result['website'] ?? "";
+                            contactSourceCtrl.text = result['contact_source'] ?? result['website'] ?? "";
                             verificationStatus = result['verification']?['status'];
                             isPhoneValid = result['isPhoneValid'] ?? false;
                           }
                         });
                       } else {
-                        // Reset everything if input is cleared
                         setDialogState(() {
                           emailCtrl.clear();
                           contactCtrl.clear();
                           websiteCtrl.clear();
+                          emailSourceCtrl.clear();
+                          contactSourceCtrl.clear();
                           verificationStatus = null;
                           isPhoneValid = false;
                           isSearching = false;
@@ -121,25 +126,12 @@ class _CompanyScreenState extends State<CompanyScreen> {
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Center(child: Text('Searching & Verifying...', style: TextStyle(fontSize: 12, color: Colors.indigo))),
                   ),
-                // Website Field (Visible and Editable)
-                const SizedBox(height: 8),
-                const Text('Company Website', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo)),
-                const SizedBox(height: 4),
-                TextField(
-                  controller: websiteCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'e.g. facebook.com',
-                    prefixIcon: const Icon(Icons.language_rounded, size: 20, color: Colors.indigo),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
+                
+                _buildSectionLabel('Company Website'),
+                _buildSimpleTextField(websiteCtrl, 'e.g. facebook.com', Icons.language_rounded),
+                
                 const SizedBox(height: 16),
-                // Email Field (Editable)
-                const Text('Email Address', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo)),
-                const SizedBox(height: 4),
+                _buildSectionLabel('Email Address'),
                 TextField(
                   controller: emailCtrl,
                   decoration: InputDecoration(
@@ -148,34 +140,18 @@ class _CompanyScreenState extends State<CompanyScreen> {
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: verificationStatus == 'deliverable' 
-                          ? Colors.green 
-                          : (verificationStatus == null ? Colors.grey.shade300 : Colors.orange),
+                        color: verificationStatus == 'deliverable' ? Colors.green : (verificationStatus == null ? Colors.grey.shade300 : Colors.orange),
                         width: 2,
                       ),
                     ),
-                    suffixIcon: verificationStatus != null
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              verificationStatus == 'deliverable' ? 'VERIFIED ' : 'RISKY ',
-                              style: TextStyle(color: verificationStatus == 'deliverable' ? Colors.green : Colors.orange, fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            Icon(
-                              verificationStatus == 'deliverable' ? Icons.check_circle : Icons.warning_amber_rounded,
-                              color: verificationStatus == 'deliverable' ? Colors.green : Colors.orange,
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        )
-                      : null,
+                    suffixIcon: verificationStatus != null ? _buildStatusTag(verificationStatus!) : null,
                   ),
                 ),
+                const SizedBox(height: 8),
+                _buildSimpleTextField(emailSourceCtrl, 'Email Source URL', Icons.link_rounded, fontSize: 11),
+
                 const SizedBox(height: 16),
-                // Contact Number Field (Editable)
-                const Text('Contact Number', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo)),
-                const SizedBox(height: 4),
+                _buildSectionLabel('Contact Number'),
                 TextField(
                   controller: contactCtrl,
                   onChanged: (val) {
@@ -188,23 +164,13 @@ class _CompanyScreenState extends State<CompanyScreen> {
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: isPhoneValid ? Colors.green : Colors.grey.shade300,
-                        width: 2,
-                      ),
+                      borderSide: BorderSide(color: isPhoneValid ? Colors.green : Colors.grey.shade300, width: 2),
                     ),
-                    suffixIcon: isPhoneValid 
-                      ? const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('VALID ', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
-                            Icon(Icons.check_circle, color: Colors.green),
-                            const SizedBox(width: 8),
-                          ],
-                        )
-                      : null,
+                    suffixIcon: isPhoneValid ? const Icon(Icons.check_circle, color: Colors.green) : null,
                   ),
                 ),
+                const SizedBox(height: 8),
+                _buildSimpleTextField(contactSourceCtrl, 'Contact Source URL', Icons.link_rounded, fontSize: 11),
               ],
             ),
           ),
@@ -230,9 +196,11 @@ class _CompanyScreenState extends State<CompanyScreen> {
                 final res = await api.addCompany({
                   'user_id': userId,
                   'company_name': nameCtrl.text,
-                  'website': websiteCtrl.text, // Use the value from the editable website box
+                  'website': websiteCtrl.text,
                   'email': emailCtrl.text,
+                  'email_source': emailSourceCtrl.text,
                   'contact': contactCtrl.text,
+                  'contact_source': contactSourceCtrl.text,
                 });
 
                 if (res['success']) {
@@ -257,6 +225,46 @@ class _CompanyScreenState extends State<CompanyScreen> {
         ),
       ),
     ).then((_) => debounce?.cancel());
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo)),
+    );
+  }
+
+  Widget _buildSimpleTextField(TextEditingController ctrl, String hint, IconData icon, {double fontSize = 14}) {
+    return TextField(
+      controller: ctrl,
+      style: TextStyle(fontSize: fontSize),
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon, size: 18, color: Colors.indigo.withOpacity(0.5)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        filled: true,
+        fillColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildStatusTag(String status) {
+    bool isDeliverable = status == 'deliverable';
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          isDeliverable ? 'VERIFIED ' : 'RISKY ',
+          style: TextStyle(color: isDeliverable ? Colors.green : Colors.orange, fontSize: 10, fontWeight: FontWeight.bold),
+        ),
+        Icon(
+          isDeliverable ? Icons.check_circle : Icons.warning_amber_rounded,
+          color: isDeliverable ? Colors.green : Colors.orange,
+        ),
+        const SizedBox(width: 8),
+      ],
+    );
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value, {String? tag, Color? tagColor}) {
@@ -430,9 +438,20 @@ class _CompanyScreenState extends State<CompanyScreen> {
                   // Email Row
                   _buildContactItem(
                     Icons.email_rounded,
-                    company.email ?? "",
+                    company.email ?? "No Email",
                     onTap: () => launchUrl(Uri.parse('mailto:${company.email}')),
                   ),
+                  if (company.emailSource != null && company.emailSource!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 28, bottom: 8),
+                      child: GestureDetector(
+                        onTap: () => launchUrl(Uri.parse('https://${company.emailSource}')),
+                        child: Text(
+                          'Source: ${company.emailSource}',
+                          style: TextStyle(color: Colors.blue.withOpacity(0.7), fontSize: 11, decoration: TextDecoration.underline),
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 8),
                   // Phone Row
                   _buildContactItem(
@@ -440,29 +459,44 @@ class _CompanyScreenState extends State<CompanyScreen> {
                     company.contact ?? "No Contact",
                     color: Colors.black87,
                   ),
+                  if (company.contactSource != null && company.contactSource!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 28),
+                      child: GestureDetector(
+                        onTap: () => launchUrl(Uri.parse('https://${company.contactSource}')),
+                        child: Text(
+                          'Source: ${company.contactSource}',
+                          style: TextStyle(color: Colors.blue.withOpacity(0.7), fontSize: 11, decoration: TextDecoration.underline),
+                        ),
+                      ),
+                    ),
                   if (company.website != null && company.website!.isNotEmpty) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     InkWell(
                       onTap: () => launchUrl(Uri.parse('https://${company.website}')),
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
-                          color: Colors.indigo.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.indigo.withOpacity(0.2)),
+                          color: const Color(0xFF1E3A8A).withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.1)),
                         ),
                         child: Row(
-                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.language_rounded, size: 16, color: Colors.indigo),
-                            const SizedBox(width: 8),
-                            Text(
-                              company.website!,
-                              style: const TextStyle(
-                                color: Colors.indigo,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                            const Icon(Icons.language_rounded, size: 18, color: Color(0xFF1E3A8A)),
+                            const SizedBox(width: 10),
+                            const Text('Website: ', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                            Expanded(
+                              child: Text(
+                                company.website!,
+                                style: const TextStyle(
+                                  color: Color(0xFF1E3A8A),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

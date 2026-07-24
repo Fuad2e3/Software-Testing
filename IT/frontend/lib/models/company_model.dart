@@ -4,7 +4,9 @@ class Company {
   final String companyName;
   final String? website;
   final String? email;
+  final String? emailSource;
   final String? contact;
+  final String? contactSource;
   final String? createdAt;
 
   Company({
@@ -13,7 +15,9 @@ class Company {
     required this.companyName,
     this.website,
     this.email,
+    this.emailSource,
     this.contact,
+    this.contactSource,
     this.createdAt,
   });
 
@@ -24,7 +28,9 @@ class Company {
       companyName: json['company_name'],
       website: json['website'],
       email: json['email'],
+      emailSource: json['email_source'],
       contact: json['contact'],
+      contactSource: json['contact_source'],
       createdAt: json['created_at'],
     );
   }
@@ -36,7 +42,9 @@ class Company {
       'company_name': companyName,
       'website': website,
       'email': email,
+      'email_source': emailSource,
       'contact': contact,
+      'contact_source': contactSource,
     };
   }
 }
