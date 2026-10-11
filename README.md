@@ -13,7 +13,7 @@
 
 ---
 
-[Explore Features](#-key-features) • [Project Structure](#-project-structure) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started)
+[Explore Features](#-key-features) • [Project Structure](#-project-structure) • [Tech Stack](#-tech-stack)
 
 </div>
 
@@ -61,30 +61,11 @@ Software-Testing/
 
 ---
 
-## ⚙️ Getting Started
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/Fuad2e3/Software-Testing.git
-cd Software-Testing
-```
-
-### 2. Run Local Authentication Test Bed
-```bash
-cd "Registration_Login_ with Localhost/backend"
-npm install
-npm start
-```
-
----
-
 ## 📄 License
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
 
-**Developed with ❤️ by Fuad**  
-*Developed by Softece*  
-*Software Testing | Green University of Bangladesh*
+**Developed ❤️ by Softece**
 
 </div>
